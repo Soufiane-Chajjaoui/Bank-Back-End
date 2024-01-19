@@ -70,7 +70,16 @@ public class MyCommandLineRunner implements CommandLineRunner {
                 bankAccountRepo.findById(id).orElse(null);
 
         if (bankAccount != null){
-            System.out.println(bankAccount.getOperations());
+            System.out.println(bankAccount.getBalance());
+            System.out.println(bankAccount.getCustomer().getName());
+            bankAccount.getOperations().forEach(op -> {
+                System.out.println(op.getOperationDate());
+            });
+            if (bankAccount instanceof SavingAccount){
+                System.out.println("Rate =>" +((SavingAccount) bankAccount).getInterestRate());
+            }else {
+                System.out.println("Over Draft =>" + ((CurrentAccount) bankAccount).getOverDraft());
+            }
         }
     }
 }
