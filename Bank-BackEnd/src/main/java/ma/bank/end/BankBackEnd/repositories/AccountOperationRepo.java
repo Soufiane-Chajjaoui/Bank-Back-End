@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
- interface AccountOperationRepo extends JpaRepository<AccountOperation, Long> {}
+public interface AccountOperationRepo extends JpaRepository<AccountOperation, Long> {}

@@ -1,9 +1,12 @@
 package ma.bank.end.BankBackEnd.RunnerFirst;
 
 import ma.bank.bankingBackEnd.enums.AccountStatus;
+import ma.bank.bankingBackEnd.enums.OperationType;
+import ma.bank.end.BankBackEnd.entities.AccountOperation;
 import ma.bank.end.BankBackEnd.entities.CurrentAccount;
 import ma.bank.end.BankBackEnd.entities.Customer;
 import ma.bank.end.BankBackEnd.entities.SavingAccount;
+import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
 import ma.bank.end.BankBackEnd.repositories.BankAccountRepo;
 import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ public class MyCommandLineRunner implements CommandLineRunner {
     @Autowired
     private CustomerRepo customerRepo;
 
+    @Autowired
+    private AccountOperationRepo accountOperationRepo;
 
     @Autowired
     private BankAccountRepo bankAccountRepo;
@@ -47,7 +52,12 @@ public class MyCommandLineRunner implements CommandLineRunner {
         bankAccountRepo.findAll().forEach(acc -> {
 
             for (int i = 0 ; i < 10 ; i++){
-
+                AccountOperation accountOperation = new AccountOperation();
+                accountOperation.setType(OperationType.DEBIT);
+                accountOperation.setBankAccount(acc);
+                accountOperation.setOperationDate(new Date());
+                accountOperation.setAmount(2000.0);
+                accountOperationRepo.save(accountOperation);
             }
         });
     }
