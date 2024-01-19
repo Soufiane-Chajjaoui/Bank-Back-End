@@ -9,8 +9,8 @@ import java.util.List;
 
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "TYPE" , length = 4 , discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.JOINED)
+//@DiscriminatorColumn(name = "TYPE" , length = 4 , discriminatorType = DiscriminatorType.STRING)
 @Data @NoArgsConstructor @AllArgsConstructor
 public abstract class BankAccount {
     @Id

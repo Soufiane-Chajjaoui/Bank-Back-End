@@ -38,6 +38,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
             CurrentAccount currentAccount = new CurrentAccount();
              currentAccount.setAccountStatus(AccountStatus.SUSPENDED);
             currentAccount.setBalance(200.0);
+            currentAccount.setOverDraft(Math.random());
             currentAccount.setCustomer(customer);
             currentAccount.setCreateAt(new Date());
             bankAccountRepo.save(currentAccount);
@@ -45,6 +46,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
             SavingAccount savingAccount = new SavingAccount();
             savingAccount.setAccountStatus(AccountStatus.SUSPENDED);
             savingAccount.setBalance(200.0);
+            savingAccount.setInterestRate(290);
             savingAccount.setCustomer(customer);
             savingAccount.setCreateAt(new Date());
             bankAccountRepo.save(savingAccount);
@@ -53,7 +55,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
 
             for (int i = 0 ; i < 10 ; i++){
                 AccountOperation accountOperation = new AccountOperation();
-                accountOperation.setType(OperationType.DEBIT);
+                accountOperation.setType(Math.random() > 0.5 ? OperationType.DEBIT : OperationType.CREDIT);
                 accountOperation.setBankAccount(acc);
                 accountOperation.setOperationDate(new Date());
                 accountOperation.setAmount(2000.0);
