@@ -9,11 +9,13 @@ import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.stream.Stream;
 
 @Component
+@Transactional
 public class MyCommandLineRunner implements CommandLineRunner {
 
     @Autowired
