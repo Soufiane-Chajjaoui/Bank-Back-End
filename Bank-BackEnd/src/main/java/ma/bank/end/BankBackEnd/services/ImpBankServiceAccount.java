@@ -3,10 +3,12 @@ package ma.bank.end.BankBackEnd.services;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.bank.bankingBackEnd.enums.OperationType;
+import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.entities.*;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
+import ma.bank.end.BankBackEnd.mappers.BankAccountMapper;
 import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
 import ma.bank.end.BankBackEnd.repositories.BankAccountRepo;
 import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,6 +29,7 @@ public class ImpBankServiceAccount implements BankAccountService{
     private BankAccountRepo bankAccountRepo;
     private AccountOperationRepo accountOperationRepo;
     private CustomerRepo customerRepo;
+    private BankAccountMapper dtoMapper;
     @Override
     public Customer saveCustomer(Customer customer) {
         log.info("Has been saved");
@@ -65,8 +69,10 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public List<Customer> lisCustomers() {
-        return customerRepo.findAll();
+    public List<CustomerDTO> lisCustomers() {
+        List<Customer> customers = customerRepo.findAll() ;
+
+        return customers.stream().map(customer -> dtoMapper.fromCustomer(customer)).collect(Collectors.toList());
     }
 
     @Override
@@ -115,5 +121,11 @@ public class ImpBankServiceAccount implements BankAccountService{
     @Override
     public List<BankAccount> listofBankAccount(){
         return  bankAccountRepo.findAll();
+    }
+
+    @Override
+    public CustomerDTO getCustomer(Long id) throws CustomerNotFoundException {
+        Customer customer = customerRepo.findById(id).orElseThrow(()-> new CustomerNotFoundException("Customer Not Found"));
+        return  dtoMapper.fromCustomer(customer);
     }
 }
