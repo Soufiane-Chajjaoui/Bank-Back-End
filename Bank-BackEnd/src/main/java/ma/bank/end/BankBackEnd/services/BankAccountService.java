@@ -2,6 +2,8 @@ package ma.bank.end.BankBackEnd.services;
 
 import ma.bank.end.BankBackEnd.entities.BankAccount;
 import ma.bank.end.BankBackEnd.entities.Customer;
+import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
+import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
 import java.util.List;
 
@@ -11,7 +13,9 @@ public interface BankAccountService {
     BankAccount saveSavingBankAccount(double initialBalance , double interestRate, Long customerId) throws CustomerNotFoundException;
     List<Customer> lisCustomers();
     BankAccount getBankAccount(Long id);
-    void debit(String accountId , double amount , String Description);
-    void credit(String accountId,double amount , String description);
-    void transfer(String accountIdSource , String accountIdDescription , double amount);
+    void debit(Long accountId , double amount , String Description) throws BalanceNotSufficientException, BankAccountNotFoundException;
+    void credit(Long accountId,double amount , String description) throws  BankAccountNotFoundException;
+    void transfer(Long accountIdSource , Long accountIdDestination , double amount) throws BankAccountNotFoundException, BalanceNotSufficientException ;
+
+    List<BankAccount> listofBankAccount();
 }

@@ -6,11 +6,13 @@ import ma.bank.end.BankBackEnd.entities.*;
 import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
 import ma.bank.end.BankBackEnd.repositories.BankAccountRepo;
 import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
+import ma.bank.end.BankBackEnd.services.ImpBankServiceAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -26,6 +28,9 @@ public class MyCommandLineRunner implements CommandLineRunner {
 
     @Autowired
     private BankAccountRepo bankAccountRepo;
+
+    @Autowired
+    private ImpBankServiceAccount bankService;
 
 
 //    public void run(String... args) throws Exception {
@@ -65,23 +70,34 @@ public class MyCommandLineRunner implements CommandLineRunner {
 //    }
 
 
-    @Override
-    public void run(String... args) throws Exception {
-        Long id = 2L ;
-        BankAccount bankAccount =
-                bankAccountRepo.findById(id).orElse(null);
+//    @Override
+//    public void run(String... args) throws Exception {
+//        Long id = 2L ;
+//        BankAccount bankAccount =
+//                bankAccountRepo.findById(id).orElse(null);
+//        if (bankAccount != null){
+//            System.out.println(bankAccount.getBalance());
+//            System.out.println(bankAccount.getCustomer().getName());
+//            bankAccount.getOperations().forEach(op -> {
+//                System.out.println( op.getType() + " " + op.getOperationDate());
+//            });
+//            if (bankAccount instanceof SavingAccount){
+//                System.out.println("Rate =>" +((SavingAccount) bankAccount).getInterestRate());
+//            }else {
+//                System.out.println("Over Draft =>" + ((CurrentAccount) bankAccount).getOverDraft());
+//            }
+//        }
+//    }
 
-        if (bankAccount != null){
-            System.out.println(bankAccount.getBalance());
-            System.out.println(bankAccount.getCustomer().getName());
-            bankAccount.getOperations().forEach(op -> {
-                System.out.println(op.getOperationDate());
-            });
-            if (bankAccount instanceof SavingAccount){
-                System.out.println("Rate =>" +((SavingAccount) bankAccount).getInterestRate());
-            }else {
-                System.out.println("Over Draft =>" + ((CurrentAccount) bankAccount).getOverDraft());
-            }
-        }
+    @Override
+    public void run(String... args) {
+        String[] customers = {"Soufian" , "Mahdi" , "Mohamed" , "Ahmed"};
+        Arrays.stream(customers).forEach(c -> {
+            Customer customer = new Customer();
+            customer.setEmail(c + "@gmail.com");
+            customer.setName(c);
+            bankService.saveCustomer(customer);
+        });
+        bankService.listofBankAccount().forEach(account);
     }
 }
