@@ -3,6 +3,9 @@ package ma.bank.end.BankBackEnd.RunnerFirst;
 import ma.bank.bankingBackEnd.enums.AccountStatus;
 import ma.bank.bankingBackEnd.enums.OperationType;
 import ma.bank.end.BankBackEnd.entities.*;
+import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
+import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
+import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
 import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
 import ma.bank.end.BankBackEnd.repositories.BankAccountRepo;
 import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
@@ -14,20 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Component
 @Transactional
 public class MyCommandLineRunner implements CommandLineRunner {
 
-    @Autowired
-    private CustomerRepo customerRepo;
 
-    @Autowired
-    private AccountOperationRepo accountOperationRepo;
 
-    @Autowired
-    private BankAccountRepo bankAccountRepo;
 
     @Autowired
     private ImpBankServiceAccount bankService;
@@ -98,6 +96,23 @@ public class MyCommandLineRunner implements CommandLineRunner {
             customer.setName(c);
             bankService.saveCustomer(customer);
         });
-        bankService.listofBankAccount().forEach(account);
+        bankService.lisCustomers().forEach(customer->{
+            try {
+                bankService.saveCurrentBankAccount(Math.random()*90000,9000,customer.getId());
+                bankService.saveSavingBankAccount(Math.random()*120000,5.5,customer.getId());
+                bankService.listofBankAccount().forEach(account -> {
+                    for (int i = 0 ; i < 10 ; i++){
+                        try {
+                            bankService.credit(account.getId() , 10000+Math.random()*120000 , "Credit");
+                            bankService.debit(account.getId() , 1000+Math.random()*9000 , "Debit" );
+                        } catch (BankAccountNotFoundException | BalanceNotSufficientException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+            } catch (CustomerNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
