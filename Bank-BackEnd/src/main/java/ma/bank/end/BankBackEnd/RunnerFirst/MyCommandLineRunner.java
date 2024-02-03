@@ -2,6 +2,7 @@ package ma.bank.end.BankBackEnd.RunnerFirst;
 
 import ma.bank.bankingBackEnd.enums.AccountStatus;
 import ma.bank.bankingBackEnd.enums.OperationType;
+import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.entities.*;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
@@ -91,7 +92,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
     public void run(String... args) {
         String[] customers = {"Soufian" , "Mahdi" , "Mohamed" , "Ahmed"};
         Arrays.stream(customers).forEach(c -> {
-            Customer customer = new Customer();
+            CustomerDTO customer = new CustomerDTO();
             customer.setEmail(c + "@gmail.com");
             customer.setName(c);
             bankService.saveCustomer(customer);

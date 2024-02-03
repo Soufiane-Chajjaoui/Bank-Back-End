@@ -31,11 +31,24 @@ public class ImpBankServiceAccount implements BankAccountService{
     private CustomerRepo customerRepo;
     private BankAccountMapper dtoMapper;
     @Override
-    public Customer saveCustomer(Customer customer) {
+    public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
         log.info("Has been saved");
-        return customerRepo.save(customer);
+
+        Customer Savedcustomer = customerRepo.save(dtoMapper.fromCustomerDTO(customerDTO));
+        return dtoMapper.fromCustomer(Savedcustomer);
+    }
+    @Override
+    public CustomerDTO updateCustomer(CustomerDTO customerDTO) {
+        log.info("Has been update");
+        Customer Savedcustomer = customerRepo.save(dtoMapper.fromCustomerDTO(customerDTO));
+        return dtoMapper.fromCustomer(Savedcustomer);
     }
 
+    @Override
+    public void deleteCustomer(Long customerID){
+
+        customerRepo.deleteById(customerID);
+    }
     @Override
     public BankAccount saveCurrentBankAccount(double initialBalance, double overDraft, Long customerId) throws CustomerNotFoundException {
         Customer customer = customerRepo.findById(customerId).orElse(null);

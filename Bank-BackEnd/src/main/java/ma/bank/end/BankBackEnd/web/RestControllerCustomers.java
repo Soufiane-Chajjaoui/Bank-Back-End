@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cutomers")
+@RequestMapping("/customers")
 public class RestControllerCustomers {
 
     @Autowired
@@ -28,9 +28,27 @@ public class RestControllerCustomers {
     public ResponseEntity<?> getCustomerByID(@RequestParam Long id)  {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(bankAccountService.getCustomer(id));
-
         }catch (CustomerNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no Content");
         }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> saveCustomer(@RequestBody CustomerDTO customerDTO){
+
+        return new ResponseEntity<>(bankAccountService.saveCustomer(customerDTO) , HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public CustomerDTO updateCustomer(
+            @PathVariable Long id ,
+            @RequestBody CustomerDTO customerDTO){
+        customerDTO.setId(id);
+        return bankAccountService.updateCustomer(customerDTO);
+    }
+    @DeleteMapping("/{id}")
+    public void deleteCustomer(@PathVariable Long id){
+        System.out.println(id);
+        bankAccountService.deleteCustomer(id);
     }
 }
