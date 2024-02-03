@@ -10,12 +10,12 @@ import java.util.List;
 
 
 @Data
-public class CurrentAccountDTO {
+public class CurrentAccountDTO extends BankAccountDTO{
     private Long id ;
     private double balance ;
     private Date createAt;
     private AccountStatus accountStatus;
-    private Customer customer;
+    private CustomerDTO customer;
     private List<AccountOperation> operations;
     private double overDraft;
 }

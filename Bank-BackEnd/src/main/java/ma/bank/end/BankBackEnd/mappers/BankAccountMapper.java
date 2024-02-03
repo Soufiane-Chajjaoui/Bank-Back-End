@@ -28,23 +28,26 @@ public class BankAccountMapper {
     public SavingAccountDTO fromSavingAccount(SavingAccount savingAccount){
         SavingAccountDTO savingAccountDTO = new SavingAccountDTO();
         BeanUtils.copyProperties(savingAccount , savingAccountDTO);
+        savingAccountDTO.setCustomer(fromCustomer(savingAccount.getCustomer()));
         return savingAccountDTO;
     }
     public SavingAccount fromSavingAccountDTO(SavingAccountDTO savingAccountDTO){
         SavingAccount savingAccount = new SavingAccount();
         BeanUtils.copyProperties(savingAccountDTO , savingAccount);
+        savingAccount.setCustomer(fromCustomerDTO(savingAccountDTO.getCustomer()));
         return savingAccount;
     }
 
     public CurrentAccountDTO fromCurrentAccount(CurrentAccount currentAccount){
         CurrentAccountDTO currentAccountDTO = new CurrentAccountDTO();
         BeanUtils.copyProperties(currentAccount , currentAccountDTO);
-
+        currentAccountDTO.setCustomer(fromCustomer(currentAccount.getCustomer()));
         return currentAccountDTO;
     }
     public CurrentAccount fromCurrentAccountDTO(CurrentAccountDTO currentAccountDTO){
         CurrentAccount curreAccount = new CurrentAccount();
         BeanUtils.copyProperties(currentAccountDTO , curreAccount);
+        curreAccount.setCustomer(fromCustomerDTO(currentAccountDTO.getCustomer()));
         return curreAccount;
     }
 }
