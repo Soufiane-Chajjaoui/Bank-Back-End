@@ -4,7 +4,6 @@ import ma.bank.end.BankBackEnd.dtos.BankAccountDTO;
 import ma.bank.end.BankBackEnd.dtos.CurrentAccountDTO;
 import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.dtos.SavingAccountDTO;
-import ma.bank.end.BankBackEnd.entities.BankAccount;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
@@ -26,7 +25,8 @@ public interface BankAccountService {
     void credit(Long accountId,double amount , String description) throws  BankAccountNotFoundException;
     void transfer(Long accountIdSource , Long accountIdDestination , double amount) throws BankAccountNotFoundException, BalanceNotSufficientException ;
 
-    List<BankAccount> listofBankAccount();
+    List<BankAccountDTO> listofBankAccount();
+
 
     CustomerDTO getCustomer(Long id) throws CustomerNotFoundException;
 }

@@ -138,8 +138,12 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public List<BankAccount > listofBankAccount(){
-        return  bankAccountRepo.findAll();
+    public List<BankAccountDTO> listofBankAccount(){
+        return  bankAccountRepo.findAll().stream().map(account->{
+            if (account instanceof SavingAccount)
+                return  dtoMapper.fromSavingAccount((SavingAccount) account);
+            return dtoMapper.fromCurrentAccount((CurrentAccount) account);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -147,4 +151,5 @@ public class ImpBankServiceAccount implements BankAccountService{
         Customer customer = customerRepo.findById(id).orElseThrow(()-> new CustomerNotFoundException("Customer Not Found"));
         return  dtoMapper.fromCustomer(customer);
     }
+
 }
