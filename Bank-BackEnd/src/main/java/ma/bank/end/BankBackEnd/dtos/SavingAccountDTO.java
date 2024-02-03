@@ -10,7 +10,7 @@ import java.util.List;
 
 
 @Data
-public abstract class SavingAccountDTO {
+public class SavingAccountDTO {
     private Long id ;
     private double balance ;
     private Date createAt;
