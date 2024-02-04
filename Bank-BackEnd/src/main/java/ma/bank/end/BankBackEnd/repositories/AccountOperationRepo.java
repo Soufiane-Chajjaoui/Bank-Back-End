@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface AccountOperationRepo extends JpaRepository<AccountOperation, Long> {
+
+
         List<AccountOperation> findByBankAccountId(Long id);
 }
