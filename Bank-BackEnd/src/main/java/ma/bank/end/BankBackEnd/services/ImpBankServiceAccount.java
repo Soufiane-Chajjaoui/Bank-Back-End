@@ -9,7 +9,7 @@ import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.dtos.SavingAccountDTO;
 import ma.bank.end.BankBackEnd.entities.*;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
-import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
+import ma.bank.end.BankBackEnd.exceptions.EntityNotFoundException;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
 import ma.bank.end.BankBackEnd.mappers.BankAccountMapper;
 import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -53,16 +54,16 @@ public class ImpBankServiceAccount implements BankAccountService{
         customerRepo.deleteById(customerID);
     }
     @Override
-    public CurrentAccountDTO saveCurrentBankAccount(double initialBalance, double overDraft, Long customerId) throws CustomerNotFoundException {
-        Customer customer = customerRepo.findById(customerId).orElse(null);
-        if (customer == null)
-            throw new CustomerNotFoundException("Customer not Found");
+    public CurrentAccountDTO saveCurrentBankAccount(double initialBalance, double overDraft, Long customerId) throws EntityNotFoundException {
+        Optional<Customer> customer = customerRepo.findById(customerId);
+        if (customer.isEmpty())
+            throw new EntityNotFoundException("Customer not Found");
         CurrentAccount currentAccount = new CurrentAccount();
         currentAccount.setId(new Random().nextLong());
         currentAccount.setCreateAt(new Date());
         currentAccount.setBalance(initialBalance);
         currentAccount.setOverDraft(overDraft);
-        currentAccount.setCustomer(customer);
+        currentAccount.setCustomer(customer.get());
         CurrentAccount saveBankAccount = bankAccountRepo.save(currentAccount);
         return  dtoMapper.fromCurrentAccount(saveBankAccount);
     }
@@ -70,10 +71,10 @@ public class ImpBankServiceAccount implements BankAccountService{
 
 
     @Override
-    public SavingAccountDTO saveSavingBankAccount(double initialBalance, double interestRate, Long customerId) throws CustomerNotFoundException {
+    public SavingAccountDTO saveSavingBankAccount(double initialBalance, double interestRate, Long customerId) throws EntityNotFoundException {
         Customer customer = customerRepo.findById(customerId).orElse(null);
         if (customer == null)
-            throw new CustomerNotFoundException("Customer not Found");
+            throw new EntityNotFoundException("Customer not Found");
         SavingAccount savingAccount = new SavingAccount();
         savingAccount.setId(new Random().nextLong());
         savingAccount.setCreateAt(new Date());
@@ -92,17 +93,25 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public BankAccountDTO getBankAccount(Long id) throws BankAccountNotFoundException {
-        BankAccount bankAccount = bankAccountRepo.findById(id).orElseThrow(()-> new BankAccountNotFoundException("Account Not FOund"));
-        if (bankAccount instanceof SavingAccount)
-            return dtoMapper.fromSavingAccount((SavingAccount) bankAccount);
-        return dtoMapper.fromCurrentAccount((CurrentAccount) bankAccount) ;
+    public BankAccountDTO getBankAccount(Long id) throws EntityNotFoundException {
+        Optional<BankAccount> optionalBankAccount = bankAccountRepo.findById(id);
+        if (optionalBankAccount.isPresent()) {
+            BankAccount bankAccount = optionalBankAccount.get();
+            if (bankAccount instanceof SavingAccount) {
+                return dtoMapper.fromSavingAccount((SavingAccount) bankAccount);
+            } else {
+                return dtoMapper.fromCurrentAccount((CurrentAccount) bankAccount);
+            }
+        } else {
+            throw new EntityNotFoundException("Account Not Found");
+        }
     }
 
+
     @Override
-    public void debit(Long accountId, double amount, String description) throws BalanceNotSufficientException , BankAccountNotFoundException {
+    public void debit(Long accountId, double amount, String description) throws BalanceNotSufficientException , EntityNotFoundException {
         BankAccount bankAccount= bankAccountRepo.findById(accountId)
-                .orElseThrow(()->new BankAccountNotFoundException("BankAccount not found"));
+                .orElseThrow(()->new EntityNotFoundException("BankAccount not found"));
         if(bankAccount.getBalance()<amount)
             throw new BalanceNotSufficientException("Balance not sufficient");
         AccountOperation accountOperation=new AccountOperation();
@@ -117,9 +126,9 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public void credit(Long accountId, double amount, String description) throws  BankAccountNotFoundException{
+    public void credit(Long accountId, double amount, String description) throws  EntityNotFoundException{
         BankAccount bankAccount=bankAccountRepo.findById(accountId)
-                .orElseThrow(()->new BankAccountNotFoundException("BankAccount not found"));
+                .orElseThrow(()->new EntityNotFoundException("BankAccount not found"));
         AccountOperation accountOperation=new AccountOperation();
         accountOperation.setType(OperationType.CREDIT);
         accountOperation.setAmount(amount);
@@ -132,7 +141,7 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public void transfer(Long accountIdSource, Long accountIdDestination, double amount) throws BankAccountNotFoundException, BalanceNotSufficientException {
+    public void transfer(Long accountIdSource, Long accountIdDestination, double amount) throws EntityNotFoundException, BalanceNotSufficientException {
         debit(accountIdSource,amount,"Transfer to "+accountIdDestination);
         credit(accountIdDestination,amount,"Transfer from "+accountIdSource);
     }

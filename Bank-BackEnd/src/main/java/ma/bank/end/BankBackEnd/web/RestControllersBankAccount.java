@@ -2,10 +2,8 @@ package ma.bank.end.BankBackEnd.web;
 
 import lombok.AllArgsConstructor;
 import ma.bank.end.BankBackEnd.dtos.BankAccountDTO;
-import ma.bank.end.BankBackEnd.exceptions.BankAccountNotFoundException;
+import ma.bank.end.BankBackEnd.dtos.SavingAccountDTO;
 import ma.bank.end.BankBackEnd.services.BankAccountService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +21,13 @@ public class RestControllersBankAccount {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBankAccount(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(bankAccountService.getBankAccount(id) , HttpStatus.FOUND);
-        }catch (BankAccountNotFoundException e){
-            return new ResponseEntity<>(e.getMessage() , HttpStatus.NOT_FOUND);
-        }
+    public BankAccountDTO getBankAccount(@PathVariable Long id) {
+
+            return  bankAccountService.getBankAccount(id)  ;
+    }
+    @PostMapping
+    public SavingAccountDTO AddSavingAccountDTO(@RequestBody SavingAccountDTO savingAccountDTO){
+        return bankAccountService.saveSavingBankAccount(savingAccountDTO.getBalance() , savingAccountDTO.getInterestRate() , savingAccountDTO.getCustomer().getId());
     }
 
 
