@@ -3,10 +3,7 @@ package ma.bank.end.BankBackEnd.services;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.bank.bankingBackEnd.enums.OperationType;
-import ma.bank.end.BankBackEnd.dtos.BankAccountDTO;
-import ma.bank.end.BankBackEnd.dtos.CurrentAccountDTO;
-import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
-import ma.bank.end.BankBackEnd.dtos.SavingAccountDTO;
+import ma.bank.end.BankBackEnd.dtos.*;
 import ma.bank.end.BankBackEnd.entities.*;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.EntityNotFoundException;
@@ -34,6 +31,7 @@ public class ImpBankServiceAccount implements BankAccountService{
     private AccountOperationRepo accountOperationRepo;
     private CustomerRepo customerRepo;
     private BankAccountMapper dtoMapper;
+
     @Override
     public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
         log.info("Has been saved");
@@ -156,8 +154,17 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
-    public CustomerDTO getCustomer(Long id) throws CustomerNotFoundException {
-        Customer customer = customerRepo.findById(id).orElseThrow(()-> new CustomerNotFoundException("Customer Not Found"));
+    public List<AccountOperationDTO> accountHistory(Long AccountID) throws EntityNotFoundException {
+        List<AccountOperation> accountOperations = accountOperationRepo.findByBankAccountId(AccountID);
+
+        return accountOperations.stream()
+                .map(accountOperation ->  dtoMapper.fromAccountOperation(accountOperation))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CustomerDTO getCustomer(Long id) throws EntityNotFoundException {
+        Customer customer = customerRepo.findById(id).orElseThrow(()-> new EntityNotFoundException("Customer Not Found"));
         return  dtoMapper.fromCustomer(customer);
     }
 
