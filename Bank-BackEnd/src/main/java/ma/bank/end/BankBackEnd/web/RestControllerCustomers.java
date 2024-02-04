@@ -1,9 +1,11 @@
 package ma.bank.end.BankBackEnd.web;
 
+import ma.bank.end.BankBackEnd.Errors.ApiError;
 import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.entities.BankAccount;
 import ma.bank.end.BankBackEnd.entities.Customer;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
+import ma.bank.end.BankBackEnd.exceptions.EntityExistedException;
 import ma.bank.end.BankBackEnd.services.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,8 +30,9 @@ public class RestControllerCustomers {
     public ResponseEntity<?> getCustomerByID(@RequestParam Long id)  {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(bankAccountService.getCustomer(id));
-        }catch (CustomerNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no Content");
+        }catch (EntityExistedException e){
+            ApiError apiError = new ApiError(HttpStatus.NO_CONTENT , e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
     }
 

@@ -1,9 +1,6 @@
 package ma.bank.end.BankBackEnd.services;
 
-import ma.bank.end.BankBackEnd.dtos.BankAccountDTO;
-import ma.bank.end.BankBackEnd.dtos.CurrentAccountDTO;
-import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
-import ma.bank.end.BankBackEnd.dtos.SavingAccountDTO;
+import ma.bank.end.BankBackEnd.dtos.*;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
 import ma.bank.end.BankBackEnd.exceptions.EntityNotFoundException;
@@ -28,6 +25,6 @@ public interface BankAccountService {
 
     List<BankAccountDTO> listofBankAccount();
 
-
-    CustomerDTO getCustomer(Long id) throws CustomerNotFoundException;
+    List<AccountOperationDTO> accountHistory(Long AccountID) throws EntityNotFoundException ;
+    CustomerDTO getCustomer(Long id) throws EntityNotFoundException;
 }
