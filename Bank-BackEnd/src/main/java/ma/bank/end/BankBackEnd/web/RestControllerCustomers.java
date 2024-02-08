@@ -1,5 +1,6 @@
 package ma.bank.end.BankBackEnd.web;
 
+import jakarta.validation.Valid;
 import ma.bank.end.BankBackEnd.Errors.ApiError;
 import ma.bank.end.BankBackEnd.dtos.CustomerDTO;
 import ma.bank.end.BankBackEnd.entities.BankAccount;
@@ -37,7 +38,7 @@ public class RestControllerCustomers {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveCustomer(@RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<?> saveCustomer(@RequestBody @Valid CustomerDTO customerDTO){
 
         return new ResponseEntity<>(bankAccountService.saveCustomer(customerDTO) , HttpStatus.OK);
     }
