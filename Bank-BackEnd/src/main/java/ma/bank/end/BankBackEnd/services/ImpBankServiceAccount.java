@@ -5,13 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import ma.bank.bankingBackEnd.enums.OperationType;
 import ma.bank.end.BankBackEnd.dtos.*;
 import ma.bank.end.BankBackEnd.entities.*;
+import ma.bank.end.BankBackEnd.enums.AccountStatus;
 import ma.bank.end.BankBackEnd.exceptions.BalanceNotSufficientException;
 import ma.bank.end.BankBackEnd.exceptions.EntityNotFoundException;
-import ma.bank.end.BankBackEnd.exceptions.CustomerNotFoundException;
 import ma.bank.end.BankBackEnd.mappers.BankAccountMapper;
 import ma.bank.end.BankBackEnd.repositories.AccountOperationRepo;
 import ma.bank.end.BankBackEnd.repositories.BankAccountRepo;
 import ma.bank.end.BankBackEnd.repositories.CustomerRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,6 @@ public class ImpBankServiceAccount implements BankAccountService{
     @Override
     public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
         log.info("Has been saved");
-
         Customer Savedcustomer = customerRepo.save(dtoMapper.fromCustomerDTO(customerDTO));
         return dtoMapper.fromCustomer(Savedcustomer);
     }
@@ -51,16 +52,22 @@ public class ImpBankServiceAccount implements BankAccountService{
 
         customerRepo.deleteById(customerID);
     }
+
     @Override
-    public CurrentAccountDTO saveCurrentBankAccount(double initialBalance, double overDraft, Long customerId) throws EntityNotFoundException {
+    public List<CustomerDTO> getCustomerByName(String name){
+        return customerRepo.findByNameContains(name)
+                .stream().map(customer -> dtoMapper.fromCustomer(customer)).collect(Collectors.toList());
+    }
+    @Override
+    public CurrentAccountDTO saveCurrentBankAccount(double initialBalance, double overDraft, AccountStatus accountStatus , Long customerId) throws EntityNotFoundException {
         Optional<Customer> customer = customerRepo.findById(customerId);
         if (customer.isEmpty())
             throw new EntityNotFoundException("Customer not Found");
         CurrentAccount currentAccount = new CurrentAccount();
         currentAccount.setId(new Random().nextLong());
-        currentAccount.setCreateAt(new Date());
         currentAccount.setBalance(initialBalance);
         currentAccount.setOverDraft(overDraft);
+        currentAccount.setAccountStatus(accountStatus);
         currentAccount.setCustomer(customer.get());
         CurrentAccount saveBankAccount = bankAccountRepo.save(currentAccount);
         return  dtoMapper.fromCurrentAccount(saveBankAccount);
@@ -84,15 +91,19 @@ public class ImpBankServiceAccount implements BankAccountService{
     }
 
     @Override
+    public void deleteBankAccount(Long id){
+        bankAccountRepo.softDelete(id);
+    }
+
+    @Override
     public List<CustomerDTO> lisCustomers() {
         List<Customer> customers = customerRepo.findAll() ;
-
         return customers.stream().map(customer -> dtoMapper.fromCustomer(customer)).collect(Collectors.toList());
     }
 
     @Override
     public BankAccountDTO getBankAccount(Long id) throws EntityNotFoundException {
-        Optional<BankAccount> optionalBankAccount = bankAccountRepo.findById(id);
+        Optional<BankAccount> optionalBankAccount = bankAccountRepo.findByIdNotDeleted(id);
         if (optionalBankAccount.isPresent()) {
             BankAccount bankAccount = optionalBankAccount.get();
             if (bankAccount instanceof SavingAccount) {
@@ -146,7 +157,7 @@ public class ImpBankServiceAccount implements BankAccountService{
 
     @Override
     public List<BankAccountDTO> listofBankAccount(){
-        return  bankAccountRepo.findAll().stream().map(account->{
+        return  bankAccountRepo.findAllNotDeleted().stream().map(account->{
             if (account instanceof SavingAccount)
                 return  dtoMapper.fromSavingAccount((SavingAccount) account);
             return dtoMapper.fromCurrentAccount((CurrentAccount) account);
@@ -166,6 +177,26 @@ public class ImpBankServiceAccount implements BankAccountService{
     public CustomerDTO getCustomer(Long id) throws EntityNotFoundException {
         Customer customer = customerRepo.findById(id).orElseThrow(()-> new EntityNotFoundException("Customer Not Found"));
         return  dtoMapper.fromCustomer(customer);
+    }
+
+    @Override
+    public AccountHistoryDTO getAccountHistory(Long idAccount , int page , int size) throws EntityNotFoundException{
+        BankAccount bankAccount = bankAccountRepo.findById(idAccount).orElseThrow(()-> new EntityNotFoundException("Account Not Found"));
+
+        Page<AccountOperation> accountOperations = accountOperationRepo.findByBankAccountIdOrderByOperationDateDesc(idAccount , PageRequest.of(page ,size));
+
+        AccountHistoryDTO accountHistoryDTO = new AccountHistoryDTO();
+
+        List<AccountOperationDTO> accountOperationDTOS = accountOperations.stream().map(acc -> dtoMapper.fromAccountOperation(acc)).collect(Collectors.toList());
+
+        accountHistoryDTO.setAccountOperationDTO(accountOperationDTOS);
+        accountHistoryDTO.setBalance(bankAccount.getBalance());
+        accountHistoryDTO.setPageSize(accountOperations.getSize());
+        accountHistoryDTO.setTotalPages(accountOperations.getTotalPages());
+        accountHistoryDTO.setCurrentPage(page);
+
+
+        return accountHistoryDTO ;
     }
 
 }
